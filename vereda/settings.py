@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*y!ibl$w_)$wdq(y*5yh43m#4s&@71wtz$4*rlu5n)25k4-4i9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -139,7 +139,5 @@ CHANNEL_LAYERS = {
     }
 }
 
-# Configuración de CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", # La dirección de tu frontend en React
-]
+# Asegúrate de tener esto para que React no sea bloqueado
+CORS_ALLOW_ALL_ORIGINS = True

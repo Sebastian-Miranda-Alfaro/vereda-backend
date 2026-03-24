@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -141,3 +141,5 @@ CHANNEL_LAYERS = {
 
 # Asegúrate de tener esto para que React no sea bloqueado
 CORS_ALLOW_ALL_ORIGINS = True
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')

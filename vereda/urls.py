@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 # Importamos las vistas que nos regala la librería para generar tokens
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from usuarios.views import registrar_usuario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +29,5 @@ urlpatterns = [
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # Esta ruta sirve para renovar el token cuando caduca (seguridad extra)
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/registro/', registrar_usuario, name='registro_api'),
 ]

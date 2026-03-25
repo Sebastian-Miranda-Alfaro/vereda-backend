@@ -6,11 +6,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from openai import OpenAI
 import json
+from django.utils import timezone
+from .models import Evento
 
 User = get_user_model()
-
-# Inicializamos el cliente de OpenAI de forma segura
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 @api_view(['POST'])
 @permission_classes([AllowAny]) # Permite que cualquiera pueda registrarse sin estar logueado
@@ -32,6 +31,7 @@ def registrar_usuario(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def obtener_devocional_diario(request):
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
     try:
         prompt_sistema = """
             Eres un pastor juvenil moderno, sabio y motivador para jóvenes de 13 a 18 años. 
@@ -66,3 +66,23 @@ def obtener_devocional_diario(request):
             'versiculo': 'Filipenses 4:13 NVI',
             'mensaje': '¡Todo lo puedes en Cristo que te fortalece! (Mensaje de respaldo).'
         }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) # Solo jóvenes logueados pueden ver los eventos
+def obtener_eventos(request):
+    # LA MAGIA: Filtramos (filter) los eventos donde la fecha sea MAYOR o IGUAL (gte) a la fecha y hora de este instante (timezone.now)
+    # y los ordenamos (order_by) para que el evento más próximo salga primero.
+    eventos_activos = Evento.objects.filter(fecha_evento__gte=timezone.now()).order_by('fecha_evento')
+    
+    # Preparamos la lista para React
+    lista_eventos = []
+    for evento in eventos_activos:
+        lista_eventos.append({
+            'id': evento.id,
+            'titulo': evento.titulo,
+            'descripcion': evento.descripcion,
+            'fecha_evento': evento.fecha_evento.isoformat(), # Lo mandamos en formato ISO (ej. 2026-04-15T18:00:00Z) para que la cuenta regresiva de React lo entienda fácil
+            'imagen_url': evento.imagen_url
+        })
+        
+    return Response(lista_eventos, status=status.HTTP_200_OK)

@@ -20,6 +20,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from usuarios.views import registrar_usuario
 from usuarios.views import obtener_devocional_diario
+from usuarios.views import obtener_eventos
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/registro/', registrar_usuario, name='registro_api'),
     path('api/devocional/', obtener_devocional_diario, name='devocional_diario'),
+    path('api/eventos/', obtener_eventos, name='lista_eventos'),
 ]

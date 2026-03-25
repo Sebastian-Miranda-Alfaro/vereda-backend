@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import UsuarioJoven
+from .models import Evento
 
 class UsuarioJovenAdmin(UserAdmin):
     # Le decimos al panel de administrador que agregue una nueva sección con nuestros campos
@@ -9,3 +10,5 @@ class UsuarioJovenAdmin(UserAdmin):
     )
 
 admin.site.register(UsuarioJoven, UsuarioJovenAdmin)
+
+admin.site.register(Evento)

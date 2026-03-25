@@ -34,4 +34,5 @@ urlpatterns = [
     path('api/registro/', registrar_usuario, name='registro_api'),
     path('api/devocional/', obtener_devocional_diario, name='devocional_diario'),
     path('api/eventos/', obtener_eventos, name='lista_eventos'),
+    path('api/comunidad/', include('comunidad.urls')),
 ]

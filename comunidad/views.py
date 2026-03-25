@@ -1,12 +1,14 @@
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
-from .models import PeticionOracion, LecturaEnVivo
-from .serializers import PeticionOracionSerializer, LecturaEnVivoSerializer
+from .models import PeticionOracion, LecturaEnVivo, PreguntaDuda, NotaPersonal, Subrayado, VersiculoCompartido
+from .serializers import PeticionOracionSerializer, LecturaEnVivoSerializer, PreguntaDudaSerializer, NotaPersonalSerializer, SubrayadoSerializer, VersiculoCompartidoSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
 
 # --- VISTA 1: El muro de Oraciones ---
 class PeticionOracionListCreate(generics.ListCreateAPIView):
@@ -64,3 +66,62 @@ class IncrementarOracionView(APIView):
         peticion.save()
         
         return Response({'mensaje': '¡Contador actualizado!'})
+
+# 1. FORO DE DUDAS (Todos ven las dudas del capítulo, autenticados preguntan)
+class PreguntaDudaListCreate(generics.ListCreateAPIView):
+    serializer_class = PreguntaDudaSerializer
+    permission_classes = [permissions.IsAuthenticated] # ¡Seguridad activada!
+
+    def get_queryset(self):
+        # React nos pedirá las dudas de un libro y capítulo en específico
+        queryset = PreguntaDuda.objects.all()
+        libro = self.request.query_params.get('libro', None)
+        capitulo = self.request.query_params.get('capitulo', None)
+        
+        if libro and capitulo:
+            queryset = queryset.filter(libro=libro, capitulo=capitulo)
+        return queryset.order_by('-fecha_creacion') # Las más nuevas primero
+
+    def perform_create(self, serializer):
+        # Asigna automáticamente al usuario que hizo la petición (basado en su Token)
+        serializer.save(usuario=self.request.user)
+
+
+# 2. NOTAS PERSONALES (Privadas, solo el dueño las ve)
+class NotaPersonalListCreate(generics.ListCreateAPIView):
+    serializer_class = NotaPersonalSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # MAGIA DE PRIVACIDAD: Filtramos para que solo devuelva las notas del usuario actual
+        return NotaPersonal.objects.filter(usuario=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
+
+# 3. SUBRAYADOS (Privados, para que regresen al recargar la app)
+class SubrayadoListCreate(generics.ListCreateAPIView):
+    serializer_class = SubrayadoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Solo devolvemos los subrayados de quien lo está pidiendo
+        return Subrayado.objects.filter(usuario=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
+
+# 4. VERSÍCULOS COMPARTIDOS (El Feed público de 24 horas)
+class VersiculoCompartidoListCreate(generics.ListCreateAPIView):
+    serializer_class = VersiculoCompartidoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # MAGIA DE TIEMPO: Calculamos la hora de ayer, y solo devolvemos los que sean más nuevos que eso
+        hace_24_horas = timezone.now() - timedelta(hours=24)
+        return VersiculoCompartido.objects.filter(fecha_creacion__gte=hace_24_horas).order_by('-fecha_creacion')
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)

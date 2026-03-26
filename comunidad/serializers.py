@@ -57,3 +57,18 @@ class VersiculoCompartidoSerializer(serializers.ModelSerializer):
         model = VersiculoCompartido
         fields = '__all__'
         read_only_fields = ['usuario', 'fecha_creacion']
+
+class VersiculoCompartidoSerializer(serializers.ModelSerializer):
+    # Campos "de solo lectura" para mostrar info del usuario que publica
+    nombre_usuario = serializers.ReadOnlyField(source='usuario.username')
+    avatar_usuario = serializers.ImageField(source='usuario.avatar', read_only=True)
+
+    class Meta:
+        model = VersiculoCompartido
+        fields = [
+            'id', 'nombre_usuario', 'avatar_usuario', 
+            'libro', 'capitulo', 'versiculo', 
+            'texto_biblico', 'nota_publica', 'fecha_creacion'
+        ]
+        # El usuario se asigna automáticamente en la vista, no se envía desde el front
+        read_only_fields = ['id', 'fecha_creacion']

@@ -1,6 +1,11 @@
-from django.urls import path
-from .views import PeticionOracionListCreate,LecturaEnVivoListCreate,IncrementarOracionView
+from django.urls import path, include
+from .views import PeticionOracionListCreate,LecturaEnVivoListCreate,IncrementarOracionView,VersiculoCompartidoViewSet
 from . import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+router.register(r'compartidos', VersiculoCompartidoViewSet, basename='compartido')
 
 urlpatterns = [
     # Cuando alguien visite esta ruta, se ejecutará la vista que acabamos de crear
@@ -16,6 +21,5 @@ urlpatterns = [
     # GET: Trae MIS colores / POST: Guarda un versículo subrayado
     path('subrayados/', views.SubrayadoListCreate.as_view(), name='subrayados-lista'),
     
-    # GET: Trae el feed de 24hrs / POST: Comparte algo con todos
-    path('compartidos/', views.VersiculoCompartidoListCreate.as_view(), name='compartidos-lista'),
+    path('', include(router.urls)),
 ]

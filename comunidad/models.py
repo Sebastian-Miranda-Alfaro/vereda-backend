@@ -80,3 +80,30 @@ class VersiculoCompartido(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} compartió {self.libro} {self.capitulo}:{self.versiculo}"
+
+class VersiculoCompartido(models.Model):
+    # Vinculamos el compartido al usuario que lo publica (UsuarioJoven)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, # Esto apunta automáticamente a UsuarioJoven si lo configuraste en settings
+        on_delete=models.CASCADE,
+        related_name='versiculos_compartidos'
+    )
+    
+    # Datos bíblicos (los mismos que usamos en notas/subrayados)
+    libro = models.CharField(max_length=100)
+    capitulo = models.IntegerField()
+    versiculo = models.IntegerField()
+    texto_biblico = models.TextField() # El texto exacto de la Biblia (ej. Juan 3:16)
+    
+    # La reflexión opcional del usuario ("Dios me dijo...")
+    nota_publica = models.TextField(blank=True, null=True)
+    
+    # Fecha de publicación
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ordenamos para que los más nuevos salgan primero
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"{self.usuario.email} compartió {self.libro} {self.capitulo}:{self.versiculo}"

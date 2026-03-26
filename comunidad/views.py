@@ -1,6 +1,6 @@
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions,viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import PeticionOracion, LecturaEnVivo, PreguntaDuda, NotaPersonal, Subrayado, VersiculoCompartido
 from .serializers import PeticionOracionSerializer, LecturaEnVivoSerializer, PreguntaDudaSerializer, NotaPersonalSerializer, SubrayadoSerializer, VersiculoCompartidoSerializer
@@ -114,12 +114,17 @@ class SubrayadoListCreate(generics.ListCreateAPIView):
 
 
 # 4. VERSÍCULOS COMPARTIDOS (El Feed público de 24 horas)
-class VersiculoCompartidoListCreate(generics.ListCreateAPIView):
+class VersiculoCompartidoViewSet(viewsets.ModelViewSet):
     serializer_class = VersiculoCompartidoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    # Permisos: Cualquiera puede VER (GET), pero solo logueados pueden PUBLICAR (POST)
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
-        # MAGIA DE TIEMPO: Calculamos la hora de ayer, y solo devolvemos los que sean más nuevos que eso
+        # MAGIA DE TIEMPO: Calculamos la hora de ayer, y solo devolvemos los que sean más nuevos
         hace_24_horas = timezone.now() - timedelta(hours=24)
         return VersiculoCompartido.objects.filter(fecha_creacion__gte=hace_24_horas).order_by('-fecha_creacion')
 

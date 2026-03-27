@@ -146,3 +146,11 @@ def eliminar_nota(request, libro, capitulo, versiculo):
     # Busca la nota exacta de este usuario y la elimina
     NotaPersonal.objects.filter(usuario=request.user, libro=libro, capitulo=capitulo, versiculo=versiculo).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def eliminar_compartido(request, compartido_id):
+    # Busca la publicación por su ID y verifica que le pertenezca al usuario que la quiere borrar
+    # (Reemplaza 'Compartido' por el nombre real de tu modelo si es diferente)
+    VersiculoCompartido.objects.filter(id=compartido_id, usuario=request.user).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

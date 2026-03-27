@@ -23,6 +23,8 @@ urlpatterns = [
     #Rutas para eliminar
     path('subrayados/<str:libro>/<int:capitulo>/<int:versiculo>/', views.eliminar_subrayado),
     path('notas/<str:libro>/<int:capitulo>/<int:versiculo>/', views.eliminar_nota),
+    # RUTA PARA ELIMINAR DEL FEED
+    path('compartidos/<int:compartido_id>/', views.eliminar_compartido),
     
     path('', include(router.urls)),
 ]

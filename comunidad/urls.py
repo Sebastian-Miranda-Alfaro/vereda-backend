@@ -20,6 +20,9 @@ urlpatterns = [
     
     # GET: Trae MIS colores / POST: Guarda un versículo subrayado
     path('subrayados/', views.SubrayadoListCreate.as_view(), name='subrayados-lista'),
+    #Rutas para eliminar
+    path('subrayados/<str:libro>/<int:capitulo>/<int:versiculo>/', views.eliminar_subrayado),
+    path('notas/<str:libro>/<int:capitulo>/<int:versiculo>/', views.eliminar_nota),
     
     path('', include(router.urls)),
 ]

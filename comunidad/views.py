@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
 
 # --- VISTA 1: El muro de Oraciones ---
 class PeticionOracionListCreate(generics.ListCreateAPIView):
@@ -130,3 +132,17 @@ class VersiculoCompartidoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def eliminar_subrayado(request, libro, capitulo, versiculo):
+    # Busca el subrayado exacto de este usuario y lo elimina
+    Subrayado.objects.filter(usuario=request.user, libro=libro, capitulo=capitulo, versiculo=versiculo).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def eliminar_nota(request, libro, capitulo, versiculo):
+    # Busca la nota exacta de este usuario y la elimina
+    NotaPersonal.objects.filter(usuario=request.user, libro=libro, capitulo=capitulo, versiculo=versiculo).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
